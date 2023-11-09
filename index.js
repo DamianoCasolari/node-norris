@@ -6,6 +6,13 @@
 // Quando viene scaricata una battuta, controllare che questa non sia già presente nel file json locale. Se lo è, caricare un altra battuta.
 // Buon lavoro!
 
+//To write on file "NorrisDB"
+const fs = require("fs");
+const path = require("path");
+
+const usersPath = path.join(__dirname, "database", "norrisDb.json");
+
+//To create a server and file env
 const http = require("http")
 const dotenv = require("dotenv")
 dotenv.config()
@@ -18,15 +25,17 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { "content-Type": "application/json" })
 
     createNorrisQuote().then(quote => {
-
+        fs.writeFile(usersPath, quote, (err) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+        })
         res.end(quote)
-        
+
     });
 
 
-
-
-        
 })
 
 
