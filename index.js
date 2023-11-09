@@ -12,44 +12,58 @@ const path = require("path");
 
 const usersPath = path.join(__dirname, "database", "norrisDb.json");
 
-//To create a server and file env
+//To create a server and env file 
 const http = require("http")
-const dotenv = require("dotenv")
+const dotenv = require("dotenv");
+const { json } = require("stream/consumers");
 dotenv.config()
 
 let port = +process.env.PORT || 3000
 const localName = "http://localhost:"
 
-
+//create a server with its response
 const server = http.createServer((req, res) => {
     res.writeHead(200, { "content-Type": "application/json" })
 
     createNorrisQuote().then(quote => {
-        fs.writeFile(usersPath, quote, (err) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-        })
-        res.end(quote)
 
+
+        const data = fs.readFileSync(usersPath, 'utf8')
+
+        let quotes = ""
+        
+        try {
+            quotes = JSON.parse(data);
+          } catch (error) {
+            quotes = [];
+          }
+        
+        quotes.push(quote)
+        
+        let updateQuotes = JSON.stringify(quotes)
+        
+        fs.writeFileSync(usersPath, updateQuotes, "utf-8")
+
+        res.end(quote)
     });
 
-
-})
-
+});
 
 
+
+// Link server with specific URL
 server.listen(port, () => {
     console.log(localName + port);
 })
 
-
+/**
+ * 
+ * @returns {string} Random Norris Quote (async)
+ */
 function createNorrisQuote() {
     return fetch("https://api.chucknorris.io/jokes/random ")
         .then(Response => Response.json())
         .then(data => JSON.stringify(data.value, null, 2))
-
 
 }
 
