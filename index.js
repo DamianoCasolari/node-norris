@@ -14,29 +14,38 @@ let port = +process.env.PORT || 3000
 const localName = "http://localhost:"
 
 
-const server = http.createServer((req,res)=> {
-    res.writeHead(200,{"content-Type": "application/json"})
-    res.end()
-}) 
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { "content-Type": "application/json" })
+
+    createNorrisQuote().then(quote => {
+
+        res.end(quote)
+        
+    });
 
 
-server.listen(port, ()=> {
+
+
+        
+})
+
+
+
+server.listen(port, () => {
     console.log(localName + port);
 })
 
 
- function createNorrisQuote() {
-   return fetch("https://api.chucknorris.io/jokes/random ")
-    .then(Response => Response.json())
-    .then(data => JSON.stringify(data.value, null, 2)) 
+function createNorrisQuote() {
+    return fetch("https://api.chucknorris.io/jokes/random ")
+        .then(Response => Response.json())
+        .then(data => JSON.stringify(data.value, null, 2))
 
-    
+
 }
 
-createNorrisQuote().then(marco => {
-    console.log(marco);
-  });
-  
+
+
 
 
 
