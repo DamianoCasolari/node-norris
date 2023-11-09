@@ -27,21 +27,26 @@ const server = http.createServer((req, res) => {
 
     createNorrisQuote().then(quote => {
 
-
         const data = fs.readFileSync(usersPath, 'utf8')
 
         let quotes = ""
-        
+
         try {
             quotes = JSON.parse(data);
-          } catch (error) {
+        } catch (error) {
             quotes = [];
-          }
-        
-        quotes.push(quote)
+        }
+
+        if (!quotes.includes(quote)) {
+
+            quotes.push(quote)
+            
+        } else {
+            location.reload()
+        }
         
         let updateQuotes = JSON.stringify(quotes)
-        
+
         fs.writeFileSync(usersPath, updateQuotes, "utf-8")
 
         res.end(quote)
