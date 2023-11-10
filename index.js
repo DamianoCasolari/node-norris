@@ -1,11 +1,3 @@
-// Esercizio
-// Sfruttando l’api https://api.chucknorris.io/jokes/random creare un applicazione che scarica una battuta random, la aggiunge ad un file json norrisDb.json e la mostra all’utente.
-// Il file json quindi dovrà contenere la lista di tutte le battute scaricate nell’arco del tempo.
-// E ricordate, con Chuck Norris le API non hanno il coraggio di ritornare un errore, per paura che Chuck le punisca.
-// BONUS:
-// Quando viene scaricata una battuta, controllare che questa non sia già presente nel file json locale. Se lo è, caricare un altra battuta.
-// Buon lavoro!
-
 //To write on file "NorrisDB"
 const fs = require("fs");
 const path = require("path");
@@ -23,34 +15,15 @@ const localName = "http://localhost:"
 
 //create a server with its response
 const server = http.createServer((req, res) => {
+    if(req.url == "/favicon.ico"){
+        res.writeHead(404).end();
+    }
     res.writeHead(200, { "content-Type": "application/json" })
 
-    createNorrisQuote().then(quote => {
+    createNorrisQuote(checkQuote).then(quote => {
 
-        const data = fs.readFileSync(usersPath, 'utf8')
-
-        let quotes = ""
-
-        try {
-            quotes = JSON.parse(data);
-        } catch (error) {
-            quotes = [];
-        }
-
-        if (!quotes.includes(quote)) {
-
-            quotes.push(quote)
-            
-        } else {
-            location.reload()
-        }
-        
-        let updateQuotes = JSON.stringify(quotes)
-
-        fs.writeFileSync(usersPath, updateQuotes, "utf-8")
-
-        res.end(quote)
-    });
+            res.end(quote)
+        });
 
 });
 
@@ -61,19 +34,52 @@ server.listen(port, () => {
     console.log(localName + port);
 })
 
+
 /**
  * 
  * @returns {string} Random Norris Quote (async)
  */
-function createNorrisQuote() {
+function createNorrisQuote(checkQuote) {
     return fetch("https://api.chucknorris.io/jokes/random ")
         .then(Response => Response.json())
-        .then(data => JSON.stringify(data.value, null, 2))
+        .then(data => {
+            let singleQuote = JSON.stringify(data.value, null, 2)
+            checkQuote(usersPath, singleQuote)
+        })
 
 }
 
 
 
+//create method to check quptes db
+function checkQuote(usersPath, singleQuote) {
+
+    const data = fs.readFileSync(usersPath, 'utf8')
+
+    let quotes = ""
+
+    try {
+        quotes = JSON.parse(data);
+    } catch (error) {
+        quotes = [];
+    }
+
+
+    if (!quotes.includes(singleQuote)) {
+        quotes.push(singleQuote)
+
+    } else {
+        createNorrisQuote(checkQuote)
+        return
+    }
+
+
+    let updateQuotes = JSON.stringify(quotes)
+
+    fs.writeFileSync(usersPath, updateQuotes, "utf-8")
+
+    console.log(singleQuote); 
+}
 
 
 
