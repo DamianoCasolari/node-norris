@@ -36,7 +36,7 @@ server.listen(port, () => {
  * @returns {string} Random Norris Quote (async)
  */
 function createNorrisQuote(res) {
-  fetch("https://api.chucknorris.io/joes/random")
+  fetch("https://api.chucknorris.io/jokes/random")
     .then((Response) =>{
         if(!Response.ok){
           let error =  Response.status.toString()
